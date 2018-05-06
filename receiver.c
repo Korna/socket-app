@@ -13,6 +13,26 @@ int total = 0;
 struct sockaddr_in cliaddr[max_client];//client address
 int clilen[max_client];//length of client
 
+void send_queue(int sock){//check for client length error
+	int pos = 0;
+	for(int i = current; i < total; ++i){
+		char str[2];
+   		str[0] = pos + '0';
+   		str[1] = 0; // обязательно добавить конец строки!
+		
+		if(sendto(sock, str, strlen(str), 0,  
+			(struct sockaddr *) &cliaddr[i], sizeof(cliaddr[i])) < 0){
+		    perror("Error at sending:");
+		    // close(sock);
+		    //exit(1);
+		}
+		
+		pos++;
+	}
+
+}
+
+
 int add_to_list(struct sockaddr_in newcomer){
 	int add = 1;
 	
@@ -60,6 +80,17 @@ int command_exit(char* msg){
 		return 0;
 }
 
+int command_con(char* msg){
+	if(msg[0] == 'C' &&
+	msg[1] == 'o' &&
+	msg[2] == 'n')
+		return 1;
+	else 
+		return 0;
+}
+
+
+
 int main(){
 	int sock;
 	struct sockaddr_in addr;//server address
@@ -86,36 +117,56 @@ int main(){
 
 	struct sockaddr_in temp_client;
 	int temp_len;
+	char* message;
 	
 	while(1){
 		temp_len = sizeof(temp_client);
-		
-		
 		bytes_read = recvfrom(sock, buf, 1024, 0,
 		(struct sockaddr *) &temp_client, &temp_len);
 		buf[bytes_read] = '\0';
 		
+		
+		
+		if(command_con(buf)){//check for first connect
+			add_to_list(temp_client);
+			
+			if(is_first(temp_client)){
+				sendto(sock, "0", strlen("0"), 0,  
+				(struct sockaddr *) &temp_client, temp_len);
+			}else{
+				char* response = "Server is busy atm";
+				sendto(sock, response, strlen(response), 0,  
+				(struct sockaddr *) &temp_client, temp_len);
+			}
+		}
+		/*
 		if(is_first(temp_client)){
 			printf("Current:");
 			printf(buf);
-		}else
+			message = buf;
+		}else{
 			printf("Other client\n");
+			message = "Server is busy atm"l
+		}*/
+
 
 		
-		if(command_exit(buf) && is_first(temp_client))
+		if(command_exit(buf) && is_first(temp_client)){
+			printf("Client is exitting...\n");
 			current++;
-		else
-			add_to_list(temp_client);
+			send_queue(sock);
+		//	sendto(sock, "0", strlen("0"), 0,
+		//	(struct sockaddr *) &cliaddr[current], sizeof(cliaddr[current]));
+		}
 			
-	//	if(!is_first(cliaddr[current])){
-	//	}
 	
-		if(sendto(sock, buf, strlen(buf), 0,  
-		(struct sockaddr *) &temp_client, temp_len) < 0){
-	        perror("Error at sending:");
-	       // close(sock);
-	        //exit(1);
-	    }
+		if(!command_con(buf))
+			if(sendto(sock, buf, strlen(buf), 0,  
+			(struct sockaddr *) &temp_client, temp_len) < 0){
+		        perror("Error at sending:");
+		       // close(sock);
+		        //exit(1);
+		    }
 	
 	}
 	return 0;

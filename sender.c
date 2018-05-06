@@ -6,10 +6,12 @@
 #include <stdio.h>
 //#include <conio.h>
 
-char message_exit[] = "exit\0";
+#define BUFFER_SIZE 1024
 
-char msg1[] = "Hello there!\n";
-char msg2[] = "Bye bye!\n";
+
+char message_exit[] = "exit";
+char message_con[] = "con";
+
 
 int command_exit(char* msg){
 	if(msg[0] == 'e' &&
@@ -23,11 +25,11 @@ int command_exit(char* msg){
 
 
 int main(){
-	char recvline[1000];
+	char recvline[BUFFER_SIZE];
+	char* message;
 	int sock;
 	struct sockaddr_in addr;
 	sock = socket(AF_INET, SOCK_DGRAM, 0);
-
 	if(sock < 0){
 		perror("socket");
 		exit(1);
@@ -37,46 +39,52 @@ int main(){
 	addr.sin_port = htons(3425);
 	addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
-	sendto(sock, "Con", sizeof("Con"), 0,
+	sendto(sock, message_con, sizeof(message_con), 0,
 	(struct sockaddr *)&addr, sizeof(addr));
 	
+	int bytes_read;
 	while(1){
-			if((recvfrom(sock, recvline, 1000, 0, 
-		    (struct sockaddr *) 0, 0)) < 0){
-		        perror("Receive error:");
-		        close(sock);
-		        exit(1);
-		    }else
-		    	printf("Server:%s\n", recvline);
-		    	
-		    if(recvline[0] == '0')
-		    	break;
-		    	
+		bytes_read = recvfrom(sock, recvline, BUFFER_SIZE, 0, 
+		(struct sockaddr *) 0, 0);
+		
+		if(bytes_read < 0){
+		   perror("Receive error:");
+		   close(sock);
+		    exit(1);
+		}else{
+			recvline[bytes_read] = '\0';
+			printf("Server:%s\n", recvline);
+		}
+	
+		if(recvline[0] == '0')
+			break;
 	}
 
 
 	if(connect(sock, (struct sockaddr *)&addr, sizeof(addr)) >= 0)
 		while(1){
-			printf("Input your string:");
-			fgets(msg1, 1000, stdin);
-		
-			sendto(sock, msg1, sizeof(msg1), 0,
+			printf(">>");
+			fgets(message, BUFFER_SIZE, stdin);
+			
+			printf("You entered:%s", message);
+			
+			sendto(sock, message, sizeof(message), 0,
 			(struct sockaddr *)&addr, sizeof(addr));
 		
-			
-		
-		//	send(sock, msg2, sizeof(msg2), 0);
-			if(command_exit(msg1)){
+			if(command_exit(message)){
 				printf("Exitting...\n");
 				break;
 			}else{
-				if((recvfrom(sock, recvline, 1000, 0, 
-			    (struct sockaddr *) 0, 0)) < 0){
+				bytes_read = recvfrom(sock, recvline, BUFFER_SIZE,
+				 0, (struct sockaddr *) 0, 0);
+				if(bytes_read < 0){
 			        perror("Receive error:");
 			        close(sock);
 			        exit(1);
-			    }else
-			    	printf("Answer from server:%s\n", recvline);
+			    }else{
+			    	recvline[bytes_read] = '\0';
+			    	printf("Answer from server:%s", recvline);
+				}
 			}
 		}
 	else{

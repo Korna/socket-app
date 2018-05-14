@@ -18,10 +18,15 @@ CTEST(command, exit_3){
 
 CTEST(command, enter_1){
 	int result = command_con("con");
-	ASSERT_EQUAL(result, 0);
+	ASSERT_EQUAL(result, 1);
 }
 
 CTEST(command, enter_2){
+	int result = command_con("co ");
+	ASSERT_EQUAL(result, 0);
+}
+
+CTEST(command, enter_3){
 	int result = command_con("just a random message");
 	ASSERT_EQUAL(result, 0);
 }
@@ -29,7 +34,7 @@ CTEST(command, enter_2){
 CTEST(queue, increment_1){
 	int result = queue_user_out();
 
-	ASSERT_EQUAL(result, 0);
+	ASSERT_EQUAL(result, 1);
 }
 
 CTEST(queue, increment_2){

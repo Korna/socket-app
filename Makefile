@@ -36,4 +36,4 @@ test: bin/test
 	bin/test
 
 obj:
-mkdir obj
+	mkdir obj

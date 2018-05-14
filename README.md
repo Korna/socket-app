@@ -1,3 +1,4 @@
+﻿[![Build Status](https://travis-ci.com/k43guap/os-task4-Korna.svg?token=KewqSp5J8bAKgciM1CfX&branch=master)](https://travis-ci.com/k43guap/os-task4-Korna)
 # Лабораторная Работа №4. Межсетевое взаимодействие между процессами
 ## Цель работы
 Организация межсетевого взаимодействия средствами WinAPI и POSIX.

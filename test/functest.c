@@ -29,7 +29,7 @@ CTEST(command, enter_2){
 CTEST(queue, increment_1){
 	int result = queue_user_out();
 
-	ASSERT_EQUAL(result, 1);
+	ASSERT_EQUAL(result, 0);
 }
 
 CTEST(queue, increment_2){

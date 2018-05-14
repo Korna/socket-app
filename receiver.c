@@ -1,6 +1,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+
 #include <stdio.h>
 
 #include <arpa/inet.h>
@@ -25,8 +26,6 @@ void send_queue(int sock){//check for client length error
 		if(sendto(sock, str, strlen(str), 0,  
 			(struct sockaddr *) &cliaddr[i], sizeof(cliaddr[i])) < 0){
 		    perror("Error at sending:");
-		    // close(sock);
-		    //exit(1);
 		}
 		
 		pos++;
@@ -34,36 +33,37 @@ void send_queue(int sock){//check for client length error
 
 }
 
+int checkIfExists(char *dot_ip, unsigned int port){// 0 if already exists else 1
+	for(int i = current; i < total; ++i){
+		if(port == cliaddr[i].sin_port && 
+		strcmp(dot_ip, inet_ntoa(cliaddr[i].sin_addr)) == 0){
+			return 0;
+		}
+	}
+	return 1;
+}
+
+
 
 int add_to_list(struct sockaddr_in newcomer){
-	int add = 1;
 	
 	char *dot_ip = inet_ntoa(newcomer.sin_addr);
 	unsigned int port = newcomer.sin_port;
 	
-	for(int i = current; i < total; ++i){
-		if(port == cliaddr[i].sin_port && 
-		strcmp(dot_ip, inet_ntoa(cliaddr[i].sin_addr)) == 0){
-			add = 0;
-			break;
-		}
-	}
-	
-	if(add){
+	int check = checkIfExists(dot_ip, port);
+	if(check){
 		cliaddr[total] = newcomer;
 		total++;
 		printf("add. current:%d total:%d\n", current, total);
 	}
 	
-	return add;
+	return check;
 }
 
 
 int is_first(struct sockaddr_in newcomer){
 	char *dot_ip = inet_ntoa(newcomer.sin_addr);
 	unsigned int port = newcomer.sin_port;
-//			char *dot_ip = inet_ntoa(cliaddr[current].sin_addr);
-//		printf("%s:%u - ", dot_ip, cliaddr[current].sin_port);
 	printf("%s:%u - ", dot_ip, port);
 	if(port == cliaddr[current].sin_port && 
 	strcmp(dot_ip, inet_ntoa(cliaddr[current].sin_addr)) == 0)
@@ -100,9 +100,6 @@ int main(){
 	struct sockaddr_in addr;//server address
 	char buf[BUFFER_SIZE];//received message
 		
-	
-
-
 
 	sock = socket(AF_INET, SOCK_DGRAM, 0);
 	if(sock < 0){

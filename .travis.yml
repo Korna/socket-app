@@ -1,11 +1,3 @@
 language: c
-sudo: false
-addons:
-  apt:
-    packages:
-      - gcc
-      - make
-      - gettext
-      - intltool
-install:
-- ./configure && make
+compiler: gcc
+script: make && make test

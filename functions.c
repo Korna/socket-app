@@ -93,4 +93,5 @@ int command_con(char* msg){
 
 int queue_user_out(){
 	current++;
+	return current;
 }

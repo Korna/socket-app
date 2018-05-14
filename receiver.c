@@ -24,7 +24,7 @@ int main(){
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(3425);
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
-
+	printf("Receiving messages from:%s\n", inet_ntoa(addr.sin_addr));
 	if(bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0){
 		perror("Bind");
 		exit(2);

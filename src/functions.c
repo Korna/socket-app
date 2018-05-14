@@ -16,7 +16,8 @@ int clilen[max_client];//length of client
 
 void send_queue(int sock){//check for client length error
 	int pos = 0;
-	for(int i = current; i < total; ++i){
+	int i;
+	for(i = current; i < total; ++i){
 		char str[2];
    		str[0] = pos + '0';
    		str[1] = '\0';
@@ -32,7 +33,8 @@ void send_queue(int sock){//check for client length error
 }
 
 int checkIfExists(char *dot_ip, unsigned int port){// 0 if already exists else 1
-	for(int i = current; i < total; ++i){
+	int i;
+	for(i = current; i < total; ++i){
 		if(port == cliaddr[i].sin_port && 
 		strcmp(dot_ip, inet_ntoa(cliaddr[i].sin_addr)) == 0){
 			return 0;

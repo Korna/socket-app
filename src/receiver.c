@@ -10,6 +10,7 @@
 
 
 int main(){
+	printf("Starting server...\n");
 	int sock;
 	struct sockaddr_in addr;//server address
 	char buf[BUFFER_SIZE];//received message
@@ -23,8 +24,11 @@ int main(){
 
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(3425);
+	
+	char* addr_char = "127.0.0.1";//"192.168.7.101"
+//	addr.sin_addr.s_addr = inet_addr(addr_char);//
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	printf("Receiving messages from:%s\n", inet_ntoa(addr.sin_addr));
+	printf("Listen mask is:%s:%hu\n", inet_ntoa(addr.sin_addr), addr.sin_port);
 	if(bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0){
 		perror("Bind");
 		exit(2);
